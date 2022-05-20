@@ -12,13 +12,12 @@ class Matrix():
 ######################################Basic_Structure####################################################
 
 	def getshape(self, nums):
-		size = []
 		if isinstance(nums, list):
-			size.append(len(nums)), size.append(len(nums[0]))   
+			n_line, n_col = len(nums), len(nums[0])
+			return(n_line, n_col)
 		else:
 			size = nums
-		print(size)
-		return(size)
+			return(size)
 
 	def geteverything(self, nums):
 		if isinstance(nums, list):
@@ -27,7 +26,7 @@ class Matrix():
 			len_r, len_c = nums[0], nums[1]
 			tmp = []
 			[tmp.append([0] * len_r) for y in range(len_c)]
-		print(tmp)
+		#print(tmp)
 		return(tmp)
 
 	def checking_data(self, nums):
@@ -45,5 +44,45 @@ class Matrix():
 				if len(nums[x]) != len(nums[0]):
 					raise TypeError("Not cuadratic")
 
-##################################################################################################
+########################################################################################################
+######################################Operators#########################################################
+
+	def __add__(self, mat2):
+		if not isinstance(mat2, Matrix):
+			raise OperatorError("Second arg is not Mat")
+		if self.shape != mat2.shape:
+			raise OperatorError("Different sizes")
+		try:
+			tmp = Matrix(self.shape)
+			for x in range(self.shape[0]):
+				for y in range(self. shape[1]):
+					tmp.mat[x][y] = self.mat[x][y] + mat2.mat[x][y]
+			return tmp	
+		except:
+			raise ArithmeticError("Something happend while adding")
+
+	def __sub__(self, mat2):
+		if not isinstance(mat2, Matrix):
+			raise OperatorError("Second arg is not Mat")
+		if self.shape != mat2.shape:
+			raise OperatorError("Different sizes")
+		try:
+			tmp = Matrix(self.shape)
+			for x in range(self.shape[0]):
+				for y in range(self. shape[1]):
+					tmp.mat[x][y] = self.mat[x][y] - mat2.mat[x][y]
+			return tmp	
+		except:
+			raise ArithmeticError("Something happend while adding")
+
+
+######################################Tests##############################################################
+
+
 mat = Matrix([[1, 1, 1],[0, 1, 0],[0, 1, 0]])
+mat2 = Matrix([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
+
+mat3 = mat - mat2
+print(mat3.mat)
+
+
