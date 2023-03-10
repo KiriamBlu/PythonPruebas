@@ -1,14 +1,18 @@
 
 
 
-kk = []
+
+ 
+
+
+		
 
 
 class matrix:
     def __init__(self, *args):
         if len(args) == 1:
         	if not isinstance(matrix, (list)):
-                raise notValidInput("Invalid matrix input")
+                	raise notValidInput("Invalid matrix input")
             matrix = args[0]
             self.check_data(matrix)
             self.data = self.build_mat(matrix)
@@ -31,10 +35,23 @@ class matrix:
         return [list(row) for row in matrix]
 
     def build_empty_mat(self, rows, cols):
-        return [[None] * cols for noting in range(rows)]
+        return [[None] * cols for nothing in range(rows)]
 
 	class notValidInput(Exception):
-	    pass
-
+		pass
+	class notInput(Exception):
+		pass
     ###########################operations###########################
 
+	
+	
+ if __name__ == __main__:
+	try:
+	 	m = matrix([[2, 1], [3, 4])
+	except notValidInput:
+		return 0
+	except notInt:
+		return 0
+		
+	
+	
