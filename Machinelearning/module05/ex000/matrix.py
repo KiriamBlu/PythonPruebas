@@ -80,7 +80,9 @@ class matrix:
 			print(row)
 		print(f"Matrix shape: {self.n_rows} x {self.n_cols}")
 
-
+	def T(self):
+		t_mat = [[ self.data[x][y]for x in range(self.n_rows)] for y in range(self.n_cols)]
+		return matrix(t_mat)
 
 	########################operator_overload###########################
 
@@ -156,6 +158,16 @@ class matrix:
 			output += "\n"
 		return output
 
+	def __repr__(self):
+		matrix_repr = '['
+		for row in self.data:
+			matrix_repr += '[' + ', '.join(str(val) for val in row) + '], '
+		matrix_repr = matrix_repr.rstrip(', ') + ']'
+		return f'Matrix({matrix_repr})'
+
+
+	###############################################################################
+
 if __name__ == "__main__":
 	try:
 		m = matrix([[1, 1], [3, 4]])	
@@ -170,6 +182,9 @@ if __name__ == "__main__":
 		n.announce()
 		p = n * 3
 		print(p)
+		pt = matrix([[0, 2, 4],[1, 3, 5]])
+		print(pt)
+		print(pt.T())
 	except (matrix.notValidInput) as out:
 		print (out)
 	
