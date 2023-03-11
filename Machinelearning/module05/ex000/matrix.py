@@ -14,10 +14,10 @@ class matrix:
 				if isinstance(matrix, (list)):
 					self.check_data(matrix)
 					self.data = self.build_mat(matrix)
-					self.n_rows = len(self.data)
-					self.n_cols = len(self.data[0])
+					self.n_rows = len(self.data[0])
+					self.n_cols = len(self.data)
 				elif isinstance(matrix, (tuple)):
-					self.n_rows, self.n_cols = matrix
+					self.n_rows, self.n_cols  = matrix
 					self.data = self.build_empty_mat(self.n_rows, self.n_cols)
 				else:
 					raise self.notValidInput("Invalid data input")
@@ -39,7 +39,7 @@ class matrix:
 		return [list(float(val) for val in row) for row in matrix]
 
 	def build_empty_mat(self, n_rows, n_cols):
-		return [[0] * n_cols for nothing in range(n_rows)]
+		return [[0] * n_rows for nothing in range(n_cols)]
 
 	###########################Operations Methods##################################
 
@@ -62,16 +62,24 @@ class matrix:
 		return matrix(data)
 
 	def multMat(self, right):
-		if isinstance(right, list):
-			e_mat = matrix(tuple([self.n_rows, len(right[0])]))
-			for y, row in enumerate(right):
-				e_mat.data[y] = [sum([self.data[y][k] * row[k] for k in range(self.n_cols)]) for x in range(len(right[0]))]
-		elif isinstance(right, float):
-			e_mat = matrix(tuple([self.n_rows, self.n_cols]))
-			for y, row in enumerate(self.data):
-				e_mat.data[y] = [self.data[y][x] * right for x in range(self.n_cols)]
-			return e_mat	
-		return e_mat
+		if isinstance(right, matrix):
+			if self.n_cols != right.n_rows:
+				raise self.notValidInput("Invalid matrix input, columns of left matrix do not match rows of right matrix")
+			e_mat = matrix((self.n_rows, right.n_cols))
+			print((self.n_rows, right.n_cols))
+			for y in range(right.n_cols):
+				for x in range(self.n_rows):
+					e_mat.data[y][x] = sum([self.data[x][k] * right.data[k][y] for k in range(self.n_rows)])
+			return e_mat
+		elif isinstance(right, (int, float)):
+			e_mat = matrix((self.n_rows, self.n_cols))
+			for y in range(self.n_cols):
+				e_mat.data[y] = [self.data[y][x] * right for x in range(self.n_rows)]
+			return e_mat    
+		else:
+			raise self.NotValidInput("Invalid multiplication input")
+
+
 
 	##############################utils##################################
 
@@ -81,7 +89,7 @@ class matrix:
 		print(f"Matrix shape: {self.n_rows} x {self.n_cols}")
 
 	def T(self):
-		t_mat = [[ self.data[x][y]for x in range(self.n_rows)] for y in range(self.n_cols)]
+		t_mat = [[ self.data[x][y]for x in range(self.n_cols)] for y in range(self.n_rows)]
 		return matrix(t_mat)
 
 	########################operator_overload###########################
@@ -135,17 +143,17 @@ class matrix:
 	def __mul__(self, other):
 		if isinstance(other, matrix):
 			if self.n_cols != other.n_rows:
-				raise ValueError(f"Invalid matrix product: cannot multiply a {self.n_rows}x{self.n_cols} matrix with a {other.n_rows}x{other.n_cols} matrix")
-			result = self.multMat(other.data)
+				raise ValueError(f"Invalid matrix product: cannot multiply a {self.n_cols}x{self.n_rows} matrix with a {other.n_cols}x{other.n_rows} matrix")
+			result = self.multMat(other)
 		elif isinstance(other, (float, int)):
 			result = self.multMat(float(other))
 		return result
 
 	def __rmul__(self, other):
 		if isinstance(other, matrix):
-			if other.n_cols != self.n_rows:
-				raise ValueError(f"Invalid matrix product: cannot multiply a {other.n_rows}x{other.n_cols} matrix with a {self.n_rows}x{self.n_cols} matrix")
-			result = other.multMat(self.data)
+			if other.n_rows != self.n_cols:
+				raise ValueError(f"Invalid matrix product: cannot multiply a {other.n.n_cols}x{other.n_rows} matrix with a {self.n_cols}x{self.n_rows} matrix")
+			result = other.multMat(self)
 		elif isinstance(other, (float, int)):
 			result = self.multMat(float(other))
 		return result
@@ -168,6 +176,28 @@ class matrix:
 
 	###############################################################################
 
+class vector(matrix):
+	def __init__(self, vector):
+		if isinstance(vector, list):
+			if len(vector) == 1:
+				if not all(isinstance(element, (int, float)) for element in vector[0]):
+					raise self.notValidInput("Not valid vector input")
+				self.n_cols = len(vector[0])
+				self.n_rows = 1
+				self.data = self.build_mat([vector[0]]) # wrap the vector in a list
+			elif len(vector) > 1:
+				if not all(isinstance(element, list) and len(element) == 1 and isinstance(element[0], (float, int)) for element in vector):
+					raise self.notValidInput("Not valid vector input")
+				self.n_rows = len(vector)
+				self.n_cols = 1
+				self.data = self.build_mat(vector)
+			else:
+				raise self.notValidInput("Not valid vector input")    
+		else:
+			raise self.notValidInput("Not valid vector input")
+
+
+
 if __name__ == "__main__":
 	try:
 		m = matrix([[1, 1], [3, 4]])	
@@ -185,6 +215,9 @@ if __name__ == "__main__":
 		pt = matrix([[0, 2, 4],[1, 3, 5]])
 		print(pt)
 		print(pt.T())
+		vec = matrix([[2], [3], [4]])
+		kk = vec * pt
+		print(kk)
 	except (matrix.notValidInput) as out:
 		print (out)
 	
