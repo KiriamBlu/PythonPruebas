@@ -9,20 +9,24 @@ class matrix:
 	#############################Constructor#####################################
 
 	def __init__(self, matrix):
-		if len(matrix) != 1:
-			if isinstance(matrix, (list)):
-				self.check_data(matrix)
-				self.data = self.build_mat(matrix)
-				self.n_rows = len(self.data)
-				self.n_cols = len(self.data[0])
-			elif isinstance(matrix, (tuple)):
-				self.n_rows, self.n_cols = matrix
-				self.data = self.build_empty_mat(self.n_rows, self.n_cols)
+		try:
+			if len(matrix) != 1:
+				if isinstance(matrix, (list)):
+					self.check_data(matrix)
+					self.data = self.build_mat(matrix)
+					self.n_rows = len(self.data)
+					self.n_cols = len(self.data[0])
+				elif isinstance(matrix, (tuple)):
+					self.n_rows, self.n_cols = matrix
+					self.data = self.build_empty_mat(self.n_rows, self.n_cols)
+				else:
+					raise self.notValidInput("Invalid data input")
+				self.shape = (self.n_rows, self.n_cols)
 			else:
-				raise self.notValidInput("Invalid data input")
-			self.shape = (self.n_rows, self.n_cols)
-		else:
-			raise self.notValidInput("Invalid matrix input too many arguments")
+				raise self.notValidInput("Invalid matrix input too many arguments")
+		except Exception as e:
+			raise self.notValidInput("Invalid matrix input") from e
+
 
 
 	def check_data(self, matrix):
@@ -57,16 +61,24 @@ class matrix:
 		data = [[val / scalar for val in row] for row in self.data]
 		return matrix(data)
 
-	def multMat(self, matrix):
-		data = [[ self.data[y][x] + row[x] for x in range(self.n_cols)]  for row, y  in matrix]
-		return matrix(data)
+	def multMat(self, right):
+		if isinstance(right, list):
+			e_mat = matrix(tuple([self.n_rows, len(right[0])]))
+			for y, row in enumerate(right):
+				e_mat.data[y] = [sum([self.data[y][k] * row[k] for k in range(self.n_cols)]) for x in range(len(right[0]))]
+		elif isinstance(right, float):
+			e_mat = matrix(tuple([self.n_rows, self.n_cols]))
+			for y, row in enumerate(self.data):
+				e_mat.data[y] = [self.data[y][x] * right for x in range(self.n_cols)]
+			return e_mat	
+		return e_mat
 
 	##############################utils##################################
 
 	def announce(self):
 		for row in self.data:
 			print(row)
-		print("Matrix shape: {} x {}".format(self.n_rows, self.n_cols))
+		print(f"Matrix shape: {self.n_rows} x {self.n_cols}")
 
 
 
@@ -119,16 +131,36 @@ class matrix:
 
 
 	def __mul__(self, other):
-		if (self.n_cols != self.n_rows):
-			raise notValidInput("left[m, n] * right[n, q]: Not valid product of matrix")
-		var = self.multMat(other.data)
-		return var
+		if isinstance(other, matrix):
+			if self.n_cols != other.n_rows:
+				raise ValueError(f"Invalid matrix product: cannot multiply a {self.n_rows}x{self.n_cols} matrix with a {other.n_rows}x{other.n_cols} matrix")
+			result = self.multMat(other.data)
+		elif isinstance(other, (float, int)):
+			result = self.multMat(float(other))
+		return result
+
+	def __rmul__(self, other):
+		if isinstance(other, matrix):
+			if other.n_cols != self.n_rows:
+				raise ValueError(f"Invalid matrix product: cannot multiply a {other.n_rows}x{other.n_cols} matrix with a {self.n_rows}x{self.n_cols} matrix")
+			result = other.multMat(self.data)
+		elif isinstance(other, (float, int)):
+			result = self.multMat(float(other))
+		return result
+
+	def __str__(self):
+		output = ""
+		for row in self.data:
+			for value in row:
+				output += "{:10.4f}".format(value)
+			output += "\n"
+		return output
 
 if __name__ == "__main__":
 	try:
 		m = matrix([[1, 1], [3, 4]])	
 		m.announce()
-		o = matrix((3, 3))
+		o = matrix((2, 3))
 		o.announce()
 		l = matrix([[2, 4], [5, 8]])
 		l.announce()
@@ -136,8 +168,8 @@ if __name__ == "__main__":
 		s.announce()
 		n = s - l
 		n.announce()
-		p = n * o
-		p.announce()
+		p = n * 3
+		print(p)
 	except (matrix.notValidInput) as out:
 		print (out)
 	
